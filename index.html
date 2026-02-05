@@ -34,7 +34,7 @@ function selectPreset(p) {
   document.getElementById("status").innerText = "Preset selected: " + p;
 }
 
-function generate() {
+async function generate() {
   if (!preset) {
     alert("Select a preset first");
     return;
@@ -46,17 +46,16 @@ function generate() {
     return;
   }
 
-  document.getElementById("status").innerText = "Processing image...";
+  document.getElementById("status").innerText = "Processing with AI...";
 
-  // Fake preview (AI API next step)
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    document.getElementById("result").src = e.target.result;
-    document.getElementById("status").innerText = "Done (AI connection next step)";
-  };
-  reader.readAsDataURL(fileInput.files[0]);
+  try {
+    const res = await fetch("/api/edit");
+    const data = await res.json();
+    document.getElementById("status").innerText = data.message;
+  } catch (e) {
+    document.getElementById("status").innerText = "Error connecting to AI";
+  }
 }
 </script>
-
 </body>
 </html>
