@@ -31,7 +31,8 @@ let preset = "";
 
 function selectPreset(p) {
   preset = p;
-  document.getElementById("status").innerText = "Preset selected: " + p;
+  document.getElementById("status").innerText =
+    "Preset selected: " + p;
 }
 
 async function generate() {
@@ -43,40 +44,42 @@ async function generate() {
     return;
   }
 
-  const status = document.getElementById("status");
-  status.innerHTML = "⏳ Uploading to AI... please wait";
+  document.getElementById("status").innerText =
+    "⏳ Uploading to AI... please wait";
 
   const reader = new FileReader();
 
-  reader.onload = async function(e) {
+  reader.onload = async function (e) {
     const base64 = e.target.result;
 
     try {
       const res = await fetch("/api/edit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: base64, preset: preset })
+        body: JSON.stringify({
+          image: base64,
+          preset: preset,
+        }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(text);
+      }
 
       if (data.error) {
-        status.innerText = "❌ Error: " + data.error;
-        return;
+        throw new Error(data.error);
       }
 
-      if (!data.image) {
-        status.innerText = "❌ AI did not return image";
-        return;
-      }
-
-      status.innerHTML = `
-        <p class="mb-4">✅ Done</p>
-        <img src="${data.image}" class="mt-4 rounded shadow-lg"/>
-      `;
-
+      document.getElementById("status").innerHTML =
+        `<img src="${data.image}" class="mt-4 rounded" />`;
     } catch (err) {
-      status.innerText = "❌ Error: " + err.message;
+      document.getElementById("status").innerText =
+        "❌ Error: " + err.message;
     }
   };
 
