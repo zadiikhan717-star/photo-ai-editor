@@ -9,29 +9,30 @@
 
 <body class="bg-black text-white flex flex-col items-center p-6">
 
-  <h1 class="text-3xl font-bold mb-6">AI Cinematic Photo Editor</h1>
+<h1 class="text-3xl font-bold mb-6">AI Cinematic Photo Editor</h1>
 
-  <input type="file" id="upload" class="mb-4" />
+<input type="file" id="upload" class="mb-4"/>
 
-  <div class="grid grid-cols-2 gap-4 mb-6">
-    <button onclick="selectPreset('cinematic')" class="bg-gray-800 p-4 rounded">Cinematic</button>
-    <button onclick="selectPreset('golden')" class="bg-gray-800 p-4 rounded">Golden Hour</button>
-    <button onclick="selectPreset('restore')" class="bg-gray-800 p-4 rounded">Restore</button>
-    <button onclick="selectPreset('moody')" class="bg-gray-800 p-4 rounded">Dark Moody</button>
-  </div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+  <button onclick="selectPreset('cinematic')" class="bg-gray-800 p-4 rounded">Cinematic</button>
+  <button onclick="selectPreset('golden')" class="bg-gray-800 p-4 rounded">Golden Hour</button>
+  <button onclick="selectPreset('restore')" class="bg-gray-800 p-4 rounded">Restore</button>
+  <button onclick="selectPreset('moody')" class="bg-gray-800 p-4 rounded">Dark Moody</button>
+</div>
 
-  <button onclick="generate()" class="bg-white text-black px-6 py-3 rounded font-bold">Generate</button>
+<button onclick="generate()" class="bg-white text-black px-6 py-3 rounded font-bold">
+  Generate
+</button>
 
-  <p id="status" class="mt-4"></p>
-
-  <img id="result" class="mt-6 max-w-full rounded"/>
+<p id="status" class="mt-6 text-center"></p>
 
 <script>
 let preset = "";
 
 function selectPreset(p) {
   preset = p;
-  document.getElementById("status").innerText = "Preset selected: " + p;
+  document.getElementById("status").innerText =
+    "Preset selected: " + p;
 }
 
 async function generate() {
@@ -46,22 +47,31 @@ async function generate() {
   document.getElementById("status").innerText = "Uploading to AI...";
 
   const reader = new FileReader();
+
   reader.onload = async function(e) {
     const base64 = e.target.result;
 
-    const res = await fetch("/api/edit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: base64 })
-    });
+    try {
+      const res = await fetch("/api/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64 })
+      });
 
-    const data = await res.json();
-    document.getElementById("status").innerText =
-      "Processing... ID: " + data.id;
+      const data = await res.json();
+
+      document.getElementById("status").innerText =
+        JSON.stringify(data, null, 2);
+
+    } catch (err) {
+      document.getElementById("status").innerText =
+        "Error: " + err.message;
+    }
   };
 
   reader.readAsDataURL(file);
 }
-    </script>
+  </script>
+  
 </body>
 </html>
