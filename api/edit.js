@@ -1,10 +1,6 @@
 export default async function handler(req, res) {
   try {
     const token = process.env.REPLICATE_API_TOKEN;
-    if (!token) {
-      return res.status(500).json({ error: "Missing API token" });
-    }
-
     const { image } = req.body;
 
     const response = await fetch("https://api.replicate.com/v1/predictions", {
@@ -14,17 +10,19 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        version: "9283609d5e2f61c4c1e54e3a7c6f6c8f5b3e3b6b4b7c9a2e1d6f8b2a3c4d5e6f",
+        version: "db21e45b3e7c2a5e6c9d3a5f8b7c2d4e6f8a9b1c3d5e7f9a2b4c6d8e0f1a2b3",
         input: {
-          img: image
+          prompt: "cinematic portrait, golden hour light, ultra realistic",
+          image: image,
+          strength: 0.7
         }
       })
     });
 
     const data = await response.json();
-    return res.status(200).json(data);
+    res.status(200).json(data);
 
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 }
