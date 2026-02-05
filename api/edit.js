@@ -12,19 +12,19 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          version: "db21e45b5c3a3c3f8d9e9b9a7f6e7c8b9d0a1b2c3d4e5f6a7b8c9d0e1f2a3b4",
+          model: "stability-ai/sdxl",
           input: {
             image: image,
-            prompt: "cinematic portrait, golden hour light, ultra realistic"
+            prompt: "cinematic portrait, golden hour light, ultra realistic, sharp details"
           }
         }),
       }
     );
 
     const data = await response.json();
-    res.status(200).json(data);
+    return res.status(200).json(data);
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
