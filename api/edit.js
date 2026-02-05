@@ -1,52 +1,44 @@
-export default async function handler(req, res) {
-  try {
-    const token = process.env.REPLICATE_API_TOKEN;
-    const { image, preset } = req.body;
+export const config = {
+  runtime: 'edge',
+};
 
-    // STEP 1 — create prediction
-    const start = await fetch("https://api.replicate.com/v1/predictions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Token ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        version: "7762fd07",
-        input: {
-          image: image,
-          prompt: preset + " cinematic photo, ultra realistic, high detail"
-        },
-      }),
-    });
+export default async function handler(req) {
+  const { image } = await req.json();
+  const token = process.env.REPLICATE_API_TOKEN;
 
-    const prediction = await start.json();
+  const start = await fetch("https://api.replicate.com/v1/predictions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Token ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      version: "7762fd07",
+      input: {
+        prompt: "cinematic portrait, golden hour light, ultra realistic",
+        image: image
+      }
+    })
+  });
 
-    // STEP 2 — keep checking until done
-    let result = prediction;
+  const prediction = await start.json();
 
-    while (result.status !== "succeeded" && result.status !== "failed") {
-      await new Promise(r => setTimeout(r, 1500));
+  let result;
+  while (true) {
+    await new Promise(r => setTimeout(r, 2000));
 
-      const check = await fetch(
-        `https://api.replicate.com/v1/predictions/${result.id}`,
-        {
-          headers: { Authorization: `Token ${token}` },
-        }
-      );
+    const check = await fetch(
+      `https://api.replicate.com/v1/predictions/${prediction.id}`,
+      { headers: { "Authorization": `Token ${token}` } }
+    );
 
-      result = await check.json();
-    }
+    result = await check.json();
 
-    if (result.status === "failed") {
-      return res.status(500).json({ error: "AI processing failed" });
-    }
-
-    // STEP 3 — send image to frontend
-    return res.status(200).json({
-      image: result.output[0],
-    });
-
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+    if (result.status === "succeeded") break;
   }
+
+  return new Response(
+    JSON.stringify({ image: result.output[0] }),
+    { headers: { "Content-Type": "application/json" } }
+  );
 }
