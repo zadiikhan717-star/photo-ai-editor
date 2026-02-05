@@ -62,21 +62,20 @@ async function generate() {
         }),
       });
 
-      const text = await res.text();
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error(text);
-      }
+      const data = await res.json();
 
       if (data.error) {
         throw new Error(data.error);
       }
 
-      document.getElementById("status").innerHTML =
-        `<img src="${data.image}" class="mt-4 rounded" />`;
+      // ✅ MAIN FIX IS HERE
+      if (data.output && data.output.length > 0) {
+        document.getElementById("status").innerHTML =
+          `<img src="${data.output[0]}" class="mt-4 rounded" />`;
+      } else {
+        throw new Error(JSON.stringify(data));
+      }
+
     } catch (err) {
       document.getElementById("status").innerText =
         "❌ Error: " + err.message;
