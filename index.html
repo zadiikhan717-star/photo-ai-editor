@@ -35,27 +35,33 @@ function selectPreset(p) {
 }
 
 async function generate() {
-  if (!preset) {
-    alert("Select a preset first");
-    return;
-  }
-
   const fileInput = document.getElementById("upload");
-  if (!fileInput.files.length) {
-    alert("Upload a photo first");
+  const file = fileInput.files[0];
+
+  if (!file || !preset) {
+    alert("Upload photo and select preset");
     return;
   }
 
-  document.getElementById("status").innerText = "Processing with AI...";
+  document.getElementById("status").innerText = "Uploading to AI...";
 
-  try {
-    const res = await fetch("/api/edit");
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const base64 = e.target.result;
+
+    const res = await fetch("/api/edit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64 })
+    });
+
     const data = await res.json();
-    document.getElementById("status").innerText = data.message;
-  } catch (e) {
-    document.getElementById("status").innerText = "Error connecting to AI";
-  }
+    document.getElementById("status").innerText =
+      "Processing... ID: " + data.id;
+  };
+
+  reader.readAsDataURL(file);
 }
-</script>
+    </script>
 </body>
 </html>
