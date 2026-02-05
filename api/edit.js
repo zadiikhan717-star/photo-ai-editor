@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     const { image } = req.body;
 
     const response = await fetch(
-      "https://api.replicate.com/v1/models/stability-ai/stable-diffusion/predictions",
+      "https://api.replicate.com/v1/predictions",
       {
         method: "POST",
         headers: {
@@ -12,17 +12,18 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          version: "db21e45b5c3a3c3f8d9e9b9a7f6e7c8b9d0a1b2c3d4e5f6a7b8c9d0e1f2a3b4",
           input: {
-            prompt: "cinematic portrait, golden hour light, ultra realistic",
             image: image,
-            strength: 0.7,
-          },
+            prompt: "cinematic portrait, golden hour light, ultra realistic"
+          }
         }),
       }
     );
 
     const data = await response.json();
     res.status(200).json(data);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
