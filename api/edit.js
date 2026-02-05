@@ -10,10 +10,10 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        version: "sdxl",
+        version: "db21e45b9c4f5fb2f9c7d4e9a5b0c9f3d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3",
         input: {
-          prompt: "cinematic portrait, golden hour light, ultra realistic, sharp details",
-          image: image
+          image: image,
+          prompt: "cinematic portrait, golden hour light, ultra realistic, sharp details"
         }
       })
     });
