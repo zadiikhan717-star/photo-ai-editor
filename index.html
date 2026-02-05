@@ -60,8 +60,9 @@ async function generate() {
 
       const data = await res.json();
 
-      document.getElementById("status").innerText =
-        JSON.stringify(data, null, 2);
+document.getElementById("status").innerHTML =
+  `<img src="${data.image}" class="mt-4 rounded" />`;
+  
 
     } catch (err) {
       document.getElementById("status").innerText =
