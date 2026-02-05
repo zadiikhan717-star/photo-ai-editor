@@ -24,15 +24,14 @@
   Generate
 </button>
 
-<p id="status" class="mt-6 text-center"></p>
+<div id="status" class="mt-6 text-center"></div>
 
 <script>
 let preset = "";
 
 function selectPreset(p) {
   preset = p;
-  document.getElementById("status").innerText =
-    "Preset selected: " + p;
+  document.getElementById("status").innerText = "Preset selected: " + p;
 }
 
 async function generate() {
@@ -44,7 +43,8 @@ async function generate() {
     return;
   }
 
-  document.getElementById("status").innerText = "Uploading to AI...";
+  const status = document.getElementById("status");
+  status.innerHTML = "⏳ Uploading to AI... please wait";
 
   const reader = new FileReader();
 
@@ -55,24 +55,34 @@ async function generate() {
       const res = await fetch("/api/edit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: base64 })
+        body: JSON.stringify({ image: base64, preset: preset })
       });
 
       const data = await res.json();
 
-document.getElementById("status").innerHTML =
-  `<img src="${data.image}" class="mt-4 rounded" />`;
-  
+      if (data.error) {
+        status.innerText = "❌ Error: " + data.error;
+        return;
+      }
+
+      if (!data.image) {
+        status.innerText = "❌ AI did not return image";
+        return;
+      }
+
+      status.innerHTML = `
+        <p class="mb-4">✅ Done</p>
+        <img src="${data.image}" class="mt-4 rounded shadow-lg"/>
+      `;
 
     } catch (err) {
-      document.getElementById("status").innerText =
-        "Error: " + err.message;
+      status.innerText = "❌ Error: " + err.message;
     }
   };
 
   reader.readAsDataURL(file);
 }
-  </script>
-  
+</script>
+
 </body>
 </html>
