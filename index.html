@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Photo Editor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-black text-white flex flex-col items-center p-6">
+
+  <h1 class="text-3xl font-bold mb-6">AI Cinematic Photo Editor</h1>
+
+  <input type="file" id="upload" class="mb-4" />
+
+  <div class="grid grid-cols-2 gap-4 mb-6">
+    <button onclick="selectPreset('cinematic')" class="bg-gray-800 p-4 rounded">Cinematic</button>
+    <button onclick="selectPreset('golden')" class="bg-gray-800 p-4 rounded">Golden Hour</button>
+    <button onclick="selectPreset('restore')" class="bg-gray-800 p-4 rounded">Restore</button>
+    <button onclick="selectPreset('moody')" class="bg-gray-800 p-4 rounded">Dark Moody</button>
+  </div>
+
+  <button onclick="generate()" class="bg-white text-black px-6 py-3 rounded font-bold">Generate</button>
+
+  <p id="status" class="mt-4"></p>
+
+  <img id="result" class="mt-6 max-w-full rounded"/>
+
+<script>
+let preset = "";
+
+function selectPreset(p) {
+  preset = p;
+  document.getElementById("status").innerText = "Preset selected: " + p;
+}
+
+function generate() {
+  if (!preset) {
+    alert("Select a preset first");
+    return;
+  }
+
+  const fileInput = document.getElementById("upload");
+  if (!fileInput.files.length) {
+    alert("Upload a photo first");
+    return;
+  }
+
+  document.getElementById("status").innerText = "Processing image...";
+
+  // Fake preview (AI API next step)
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById("result").src = e.target.result;
+    document.getElementById("status").innerText = "Done (AI connection next step)";
+  };
+  reader.readAsDataURL(fileInput.files[0]);
+}
+</script>
+
+</body>
+</html>
