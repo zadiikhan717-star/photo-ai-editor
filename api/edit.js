@@ -1,26 +1,29 @@
 export default async function handler(req, res) {
   try {
-    const token = process.env.REPLICATE_API_TOKEN;
+    const token = process.env.HF_TOKEN;
     const { image } = req.body;
 
-    const response = await fetch("https://api.replicate.com/v1/predictions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Token ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        version: "db21e45b9c4f5fb2f9c7d4e9a5b0c9f3d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3",
-        input: {
-          image: image,
-          prompt: "cinematic portrait, golden hour light, ultra realistic, sharp details"
-        }
-      })
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/stabilityai/sdxl-turbo",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          inputs: "cinematic portrait, golden hour light, ultra realistic, sharp details",
+          options: { wait_for_model: true },
+        }),
+      }
+    );
+
+    const buffer = await response.arrayBuffer();
+    const base64Image = Buffer.from(buffer).toString("base64");
+
+    return res.status(200).json({
+      image: `data:image/png;base64,${base64Image}`,
     });
-
-    const data = await response.json();
-    return res.status(200).json(data);
-
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
